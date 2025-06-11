@@ -29,6 +29,7 @@
             <button class="nav-btn" data-view="dashboard">dashboard</button>
             <button class="nav-btn" data-view="reports">reports</button>
             <button class="nav-btn" data-view="settings">settings</button>
+            <button class="nav-btn" data-view="about">about</button>
         </nav>
 
         <!-- Main Content -->
@@ -296,6 +297,42 @@
                                 <input type="file" id="import-hosts-input" accept=".json" style="display: none;">
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About View -->
+            <div class="view" id="about-view">
+                <div class="view-header">
+                    <h2>about_pynk</h2>
+                </div>
+
+                <div class="about-container">
+                    <div class="about-card">
+                        <div class="about-logo">
+                            <img src="assets/pynk-logo.png" alt="Pynk Logo" onerror="this.src='assets/default-logo.svg'; this.onerror=null;">
+                        </div>
+                        <div class="about-info">
+                            <h3>Pynk Desktop</h3>
+                            <p class="about-version">Version 1.0.0</p>
+                            <p class="about-description">Network monitoring tool for tracking ping statistics and network performance.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="about-card">
+                        <h3>author</h3>
+                        <div class="author-info">
+                            <p><strong>Jakub Wawak</strong></p>
+                            <p>Software Developer & Network Engineer</p>
+                            <p><a href="mailto:jakubwawak@gmail.com" class="author-link">jakubwawak@gmail.com</a></p>
+                            <p><a href="https://github.com/jakubwawak" class="author-link" target="_blank">github.com/jakubwawak</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="about-card">
+                        <h3>license</h3>
+                        <p>© 2023-2024 Jakub Wawak. All rights reserved.</p>
+                        <p>This software is provided as-is without any warranties.</p>
                     </div>
                 </div>
             </div>

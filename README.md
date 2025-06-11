@@ -1,16 +1,16 @@
 # Pynk Desktop
 
-Pynk Desktop is a modern network monitoring and ping analysis application built with Electron. It provides real-time network diagnostics, ping statistics, and route analysis in a sleek, user-friendly interface.
+A powerful network monitoring and ping analysis desktop application built with Electron.
 
 ## Features
 
-- **Network Monitoring**: Run continuous ping monitoring against multiple hosts with configurable intervals
-- **Route Analysis**: Visualize network routes with traceroute to identify bottlenecks
-- **Real-time Dashboard**: View live ping statistics and network quality metrics
-- **Historical Data**: Store and analyze network performance over time
-- **Data Visualization**: Interactive charts for response times and packet loss
-- **Reports**: Generate and export detailed network performance reports
-- **System Tray Integration**: Run in the background with easy access from the system tray
+- **Real-time Network Monitoring**: Track host availability and response times in real-time
+- **Interactive Dashboard**: Visualize network performance metrics with interactive charts
+- **Host Management**: Add, edit, and manage multiple hosts with customizable ping intervals
+- **Data Analysis**: View historical ping data with flexible date range filtering
+- **Report Generation**: Create customizable reports with charts and statistics
+- **System Tray Integration**: Run in the background with notifications for host status changes
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ## Technologies
 
@@ -23,40 +23,44 @@ Pynk Desktop is a modern network monitoring and ping analysis application built 
 
 ### Prerequisites
 
-- Node.js (v14 or later)
-- npm (v6 or later)
+- Node.js (v14+)
+- npm (v6+)
 
 ### Installation
 
-1. Clone the repository
-   ```
-   git clone https://github.com/yourusername/pynk_desktop.git
-   cd pynk_desktop
-   ```
+1. Clone the repository:
+```
+git clone https://github.com/jakubwawak/pynk_desktop.git
+cd pynk_desktop
+```
 
-2. Install dependencies
-   ```
-   npm install
-   ```
+2. Install dependencies:
+```
+npm install
+```
 
-3. Start the application
-   ```
-   npm start
-   ```
+3. Start the application:
+```
+npm start
+```
 
-### Development
+### Building for Production
 
-To run the application in development mode:
+To build the application for your current platform:
+
+```
+npm run build
+```
+
+The built application will be available in the `dist` directory.
+
+## Development
+
 ```
 npm run dev
 ```
 
-### Building for Distribution
-
-To build the application for distribution:
-```
-npm run build
-```
+This will start the application in development mode with hot reloading.
 
 ## Application Architecture
 
@@ -88,4 +92,13 @@ Pynk runs in the background with a system tray icon for quick access and minimal
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Built with [Electron](https://www.electronjs.org/)
+- Charts powered by [Chart.js](https://www.chartjs.org/)
+- PDF export with [jsPDF](https://github.com/parallax/jsPDF)
+
+---
+Created by Jakub Wawak 

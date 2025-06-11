@@ -14,21 +14,23 @@ class PynkRenderer {
         this.initializeApp();
         this.loadData();
         this.startPeriodicUpdates();
+        
+        // Set up IPC event handlers
+        this.setupIPCHandlers();
     }
 
     initializeApp() {
         // Window controls
         document.getElementById('minimize-btn').addEventListener('click', () => {
-            require('electron').remote.getCurrentWindow().minimize();
+            ipcRenderer.invoke('minimize-window');
         });
 
         document.getElementById('maximize-btn').addEventListener('click', () => {
-            const win = require('electron').remote.getCurrentWindow();
-            win.isMaximized() ? win.unmaximize() : win.maximize();
+            ipcRenderer.invoke('toggle-maximize-window');
         });
 
         document.getElementById('close-btn').addEventListener('click', () => {
-            require('electron').remote.getCurrentWindow().close();
+            ipcRenderer.invoke('close-window');
         });
 
         // Navigation
@@ -166,6 +168,8 @@ class PynkRenderer {
             this.updateDashboard();
         } else if (viewName === 'reports') {
             this.updateReportsView();
+        } else if (viewName === 'about') {
+            // No specific initialization needed for about view
         } else if (viewName === 'settings') {
             // No specific initialization needed for settings view
         }
@@ -284,7 +288,7 @@ class PynkRenderer {
         if (!this.pingData.has(host.id)) {
             this.pingData.set(host.id, []);
         }
-
+        
         // Ensure result has all necessary fields
         const processedResult = {
             ...result,
@@ -295,20 +299,30 @@ class PynkRenderer {
             minTime: result.minTime || 0,
             maxTime: result.maxTime || 0
         };
-
+        
         const data = this.pingData.get(host.id);
+        
+        // Get previous status if it exists
+        const previousStatus = data.length > 0 ? data[data.length - 1].success : null;
+        
+        // Check if status changed (online/offline)
+        if (previousStatus !== null && previousStatus !== processedResult.success) {
+            // Emit status change event for notifications
+            ipcRenderer.send('network-status-change', host, processedResult.success);
+        }
+        
         data.push(processedResult);
-
+        
         // Keep only last 1000 pings
         if (data.length > 1000) {
             data.shift();
         }
-
+        
         // Update host statistics
         host.lastPing = processedResult.timestamp;
         host.avgTime = processedResult.avgTime;
         host.packetLoss = processedResult.packetLoss;
-
+        
         if (processedResult.success && processedResult.packetLoss < 10) {
             host.status = 'running';
         } else if (processedResult.packetLoss > 50) {
@@ -316,9 +330,17 @@ class PynkRenderer {
         } else {
             host.status = 'warning';
         }
-
+        
+        // Save data periodically
         this.saveData();
         this.updateHostsList();
+        
+        // Update UI if current view is relevant
+        if (this.currentView === 'dashboard') {
+            this.updateDashboard();
+        } else if (this.currentView === 'home') {
+            this.updateHomeChart();
+        }
     }
 
     processTracerouteResult(host, result) {
@@ -1594,6 +1616,36 @@ class PynkRenderer {
         };
         
         reader.readAsText(file);
+    }
+
+    // Set up IPC event handlers
+    setupIPCHandlers() {
+        // Navigation from main process menu or tray
+        ipcRenderer.on('navigate-to', (event, viewName) => {
+            if (viewName && document.querySelector(`[data-view="${viewName}"]`)) {
+                this.switchView(viewName);
+            }
+        });
+        
+        // Show add host modal
+        ipcRenderer.on('show-add-host', () => {
+            document.getElementById('add-host-modal').classList.add('active');
+        });
+        
+        // Network status changed notification
+        ipcRenderer.on('network-status-change', (event, host, status) => {
+            const statusText = status ? 'Online' : 'Offline';
+            const title = `Host ${host.alias || host.name} is ${statusText}`;
+            const body = `Status changed at ${new Date().toLocaleTimeString()}`;
+            
+            // Display notification through the main process
+            ipcRenderer.invoke('show-notification', title, body);
+            
+            // Add to events list immediately if dashboard is visible
+            if (this.currentView === 'dashboard') {
+                this.updateRecentEvents();
+            }
+        });
     }
 }
 

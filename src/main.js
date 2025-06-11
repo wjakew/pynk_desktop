@@ -1,11 +1,18 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain, shell, nativeImage, Notification } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
+const notificationState = require('electron-notification-state');
 
 let mainWindow;
 let tray;
 let isQuitting = false;
+
+// Get icon path based on platform
+const getIconPath = () => {
+  const iconName = process.platform === 'win32' ? 'icon.ico' : 'icon.png';
+  return path.join(__dirname, iconName);
+};
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -15,6 +22,7 @@ const createWindow = () => {
     minHeight: 600,
     titleBarStyle: 'hidden',
     frame: false,
+    icon: getIconPath(),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -34,55 +42,150 @@ const createWindow = () => {
     if (!isQuitting) {
       event.preventDefault();
       mainWindow.hide();
+      showNotification('Pynk is still running', 'The app is minimized to the system tray.');
     }
   });
 
+  // Create application menu
+  createAppMenu();
+  
   // Create system tray
   createTray();
 };
 
+const createAppMenu = () => {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Dashboard',
+          click: () => {
+            mainWindow.show();
+            mainWindow.webContents.send('navigate-to', 'dashboard');
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Settings',
+          click: () => {
+            mainWindow.show();
+            mainWindow.webContents.send('navigate-to', 'settings');
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Quit',
+          accelerator: process.platform === 'darwin' ? 'Command+Q' : 'Ctrl+Q',
+          click: () => {
+            isQuitting = true;
+            app.quit();
+          }
+        }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Network',
+      submenu: [
+        {
+          label: 'Add Host',
+          click: () => {
+            mainWindow.show();
+            mainWindow.webContents.send('show-add-host');
+          }
+        },
+        {
+          label: 'View Hosts',
+          click: () => {
+            mainWindow.show();
+            mainWindow.webContents.send('navigate-to', 'hosts');
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Generate Report',
+          click: () => {
+            mainWindow.show();
+            mainWindow.webContents.send('navigate-to', 'reports');
+          }
+        }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About Pynk',
+          click: () => {
+            showAboutDialog();
+          }
+        },
+        {
+          label: 'Visit GitHub Repo',
+          click: async () => {
+            await shell.openExternal('https://github.com/jakubwawak/pynk_desktop');
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+};
+
 const createTray = () => {
-  // Use a NativeImage for the tray icon instead of canvas
-  const { nativeImage } = require('electron');
-  
-  // Create an empty 16x16 transparent image
-  const trayIcon = nativeImage.createEmpty();
-  
-  // Create a small colored square (simple but effective)
-  const size = { width: 16, height: 16 };
-  const emptyImage = nativeImage.createEmpty();
-  emptyImage.setSize(size);
-  
-  // Create a simple colored square as the icon
-  const imageData = Buffer.alloc(size.width * size.height * 4);
-  for (let i = 0; i < size.width * size.height; i++) {
-    const offset = i * 4;
-    // Purple color (RGBA): R=139, G=92, B=246
-    imageData[offset] = 139;     // R
-    imageData[offset + 1] = 92;  // G
-    imageData[offset + 2] = 246; // B
-    imageData[offset + 3] = 255; // A (opacity)
-  }
-  
-  // Set the tray icon data
-  trayIcon.addRepresentation({ 
-    scaleFactor: 1.0,
-    width: size.width,
-    height: size.height,
-    buffer: imageData
-  });
+  // Use platform-specific icons
+  const icon = getIconPath();
   
   // Create the tray with our icon
-  tray = new Tray(trayIcon);
+  tray = new Tray(icon);
   
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show Pynk Desktop',
+      label: 'Open Pynk Desktop',
       click: () => {
         mainWindow.show();
         mainWindow.focus();
       }
     },
+    { type: 'separator' },
+    {
+      label: 'Dashboard',
+      click: () => {
+        mainWindow.show();
+        mainWindow.webContents.send('navigate-to', 'dashboard');
+      }
+    },
+    {
+      label: 'Hosts',
+      click: () => {
+        mainWindow.show();
+        mainWindow.webContents.send('navigate-to', 'hosts');
+      }
+    },
+    {
+      label: 'Add New Host',
+      click: () => {
+        mainWindow.show();
+        mainWindow.webContents.send('show-add-host');
+      }
+    },
+    { type: 'separator' },
     {
       label: 'Quit',
       click: () => {
@@ -99,6 +202,127 @@ const createTray = () => {
     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
   });
 };
+
+// Show notification
+const showNotification = (title, body) => {
+  // Only show notification if app is in background or not focused
+  const shouldNotify = !mainWindow.isFocused() || notificationState.getDoNotDisturb();
+  
+  if (Notification.isSupported() && shouldNotify) {
+    const notification = new Notification({
+      title: title,
+      body: body,
+      icon: getIconPath(),
+      silent: false
+    });
+    
+    notification.show();
+    
+    notification.on('click', () => {
+      // Focus the app when the notification is clicked
+      if (mainWindow) {
+        if (!mainWindow.isVisible()) {
+          mainWindow.show();
+        }
+        mainWindow.focus();
+      }
+    });
+  }
+};
+
+// Show about dialog
+const showAboutDialog = () => {
+  const aboutWindow = new BrowserWindow({
+    width: 400,
+    height: 300,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    parent: mainWindow,
+    modal: true,
+    icon: getIconPath(),
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  // We could load an HTML file, but for simplicity using webContents.loadURL with data URL
+  aboutWindow.setMenu(null);
+  aboutWindow.loadURL(`data:text/html;charset=utf-8,
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            color: #333;
+            background-color: #f5f5f5;
+            text-align: center;
+          }
+          h1 {
+            color: #8250df;
+          }
+          .version {
+            color: #666;
+            margin-bottom: 20px;
+          }
+          .copyright {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Pynk Desktop</h1>
+        <div class="version">Version ${app.getVersion()}</div>
+        <p>A powerful network monitoring and ping analysis desktop application.</p>
+        <p>Created by Jakub Wawak</p>
+        <div class="copyright">© ${new Date().getFullYear()} Pynk Desktop</div>
+      </body>
+    </html>
+  `);
+};
+
+// IPC handlers for system features
+ipcMain.handle('show-notification', (event, title, body) => {
+  showNotification(title, body);
+  return true;
+});
+
+// Listen for network status changes
+ipcMain.on('network-status-change', (event, host, status) => {
+  const statusText = status ? 'Online' : 'Offline';
+  const title = `Host ${host.alias || host.name} is ${statusText}`;
+  const body = `Status changed at ${new Date().toLocaleTimeString()}`;
+  showNotification(title, body);
+});
+
+// Window control handlers
+ipcMain.handle('minimize-window', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) win.minimize();
+  return true;
+});
+
+ipcMain.handle('toggle-maximize-window', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  }
+  return true;
+});
+
+ipcMain.handle('close-window', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) win.close();
+  return true;
+});
 
 // IPC handlers for network operations
 ipcMain.handle('ping-host', async (event, host, count = 4) => {
