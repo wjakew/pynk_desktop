@@ -31,32 +31,23 @@
     "node-notifier": "^10.0.1"
   },
   "build": {
-    "appId": "com.pynk.desktop",
-    "productName": "Pynk Desktop",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "src/**/*",
-      "node_modules/**/*"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "src/icon.ico"
-    },
+    "appId": "com.jakubwawak.bind",
     "mac": {
       "target": [
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
       ],
-      "icon": "src/icon.png"
+      "icon": "src/logo.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "src/logo.ico"
     },
     "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "icon": "src/icon.png",
-      "category": "Network;Utility"
+      "target": "AppImage",
+      "icon": "src/logo.png"
     }
   }
 }
