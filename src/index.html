@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pynk Desktop</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="window">
+        <!-- Custom Title Bar -->
+        <div class="titlebar">
+            <div class="titlebar-drag-region">
+                <div class="window-title">pynk_desktop</div>
+            </div>
+            <div class="window-controls">
+                <button class="window-control minimize" id="minimize-btn">−</button>
+                <button class="window-control maximize" id="maximize-btn">□</button>
+                <button class="window-control close" id="close-btn">×</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="navbar">
+            <button class="nav-btn active" data-view="home">home</button>
+            <button class="nav-btn" data-view="data">data</button>
+            <button class="nav-btn" data-view="hosts">hosts_and_jobs</button>
+            <button class="nav-btn" data-view="dashboard">dashboard</button>
+            <button class="nav-btn" data-view="reports">reports</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home View -->
+            <div class="view active" id="home-view">
+                <div class="view-header">
+                    <h2>ping_monitor</h2>
+                    <div class="view-controls">
+                        <select id="home-selected-host" class="view-select">
+                            <option value="" disabled selected>select_host</option>
+                            <!-- Host options will be populated here -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="fullscreen-chart-container">
+                    <canvas id="home-ping-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Data View -->
+            <div class="view" id="data-view">
+                <div class="view-header">
+                    <h2>historical_data</h2>
+                    <div class="view-controls">
+                        <select id="data-selected-host" class="view-select">
+                            <option value="" disabled selected>select_host</option>
+                            <!-- Host options will be populated here -->
+                        </select>
+                        <div class="date-selector">
+                            <label for="date-from">from:</label>
+                            <input type="date" id="date-from">
+                            <label for="date-to">to:</label>
+                            <input type="date" id="date-to">
+                            <button class="btn-secondary" id="apply-date-filter">apply</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="data-table-container">
+                    <table id="ping-data-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>timestamp</th>
+                                <th>status</th>
+                                <th>response_time</th>
+                                <th>min_time</th>
+                                <th>max_time</th>
+                                <th>packet_loss</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Ping data rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hosts and Jobs View -->
+            <div class="view" id="hosts-view">
+                <div class="view-header">
+                    <h2>network_monitoring_jobs</h2>
+                    <button class="btn-primary" id="add-host-btn">add_host</button>
+                </div>
+
+                <div class="hosts-container">
+                    <div class="hosts-list">
+                        <div class="section-title">configured_hosts</div>
+                        <div id="hosts-list" class="list-container">
+                            <!-- Hosts will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="jobs-list">
+                        <div class="section-title">active_jobs</div>
+                        <div id="jobs-list" class="list-container">
+                            <!-- Jobs will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Host Modal -->
+                <div id="add-host-modal" class="modal">
+                    <div class="modal-content">
+                        <h3>add_new_host</h3>
+                        <form id="add-host-form">
+                            <input type="text" id="host-name" placeholder="host_name_or_ip" required>
+                            <input type="text" id="host-alias" placeholder="alias_(optional)">
+                            <select id="ping-interval">
+                                <option value="30">30_seconds</option>
+                                <option value="60" selected>1_minute</option>
+                                <option value="300">5_minutes</option>
+                                <option value="600">10_minutes</option>
+                                <option value="1800">30_minutes</option>
+                            </select>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" id="cancel-host-btn">cancel</button>
+                                <button type="submit" class="btn-primary">add_host</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div class="view" id="dashboard-view">
+                <div class="view-header">
+                    <h2>network_dashboard</h2>
+                    <div class="dashboard-controls">
+                        <select id="time-range">
+                            <option value="1h">last_hour</option>
+                            <option value="6h">last_6_hours</option>
+                            <option value="24h" selected>last_24_hours</option>
+                            <option value="7d">last_7_days</option>
+                        </select>
+                        <button class="btn-secondary" id="refresh-dashboard">refresh</button>
+                    </div>
+                </div>
+
+                <div class="dashboard-controls">
+                    <select id="selected-host" class="dashboard-select">
+                        <option value="" disabled selected>select_host</option>
+                        <!-- Host options will be populated here -->
+                    </select>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>response_times</h3>
+                        <canvas id="response-chart"></canvas>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>packet_loss_meter</h3>
+                        <div class="gauge-subtitle">Network Reliability</div>
+                        <canvas id="packet-chart"></canvas>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>ping_statistics</h3>
+                        <div id="ping-stats" class="stats-container">
+                            <div class="stats-item">
+                                <span class="stats-label">min:</span>
+                                <span class="stats-value" id="min-ping">--</span>
+                            </div>
+                            <div class="stats-item">
+                                <span class="stats-label">max:</span>
+                                <span class="stats-value" id="max-ping">--</span>
+                            </div>
+                            <div class="stats-item">
+                                <span class="stats-label">avg:</span>
+                                <span class="stats-value" id="avg-ping">--</span>
+                            </div>
+                            <div class="stats-item">
+                                <span class="stats-label">packet_loss:</span>
+                                <span class="stats-value" id="packet-loss">--</span>
+                            </div>
+                            <div class="stats-item">
+                                <span class="stats-label">success_rate:</span>
+                                <span class="stats-value" id="success-rate">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>host_status</h3>
+                        <div id="host-status" class="status-grid">
+                            <!-- Status items will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>recent_events</h3>
+                        <div id="recent-events" class="events-list">
+                            <!-- Events will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card full-width">
+                        <h3>traceroute_to_8.8.8.8</h3>
+                        <div class="traceroute-container">
+                            <canvas id="traceroute-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports View -->
+            <div class="view" id="reports-view">
+                <div class="view-header">
+                    <h2>reports_generator</h2>
+                    <div class="report-controls">
+                        <button class="btn-primary" id="generate-report-btn">generate_report</button>
+                        <button class="btn-secondary" id="export-csv-btn">export_csv</button>
+                        <button class="btn-secondary" id="export-pdf-btn">export_pdf</button>
+                    </div>
+                </div>
+
+                <div class="reports-container">
+                    <div class="report-config">
+                        <h3>report_configuration</h3>
+                        <form id="report-form">
+                            <label>time_period:</label>
+                            <select id="report-period">
+                                <option value="1d">last_24_hours</option>
+                                <option value="3d">last_3_days</option>
+                                <option value="7d" selected>last_week</option>
+                                <option value="30d">last_month</option>
+                            </select>
+
+                            <label>hosts:</label>
+                            <div id="report-hosts" class="checkbox-group">
+                                <!-- Host checkboxes will be populated here -->
+                            </div>
+
+                            <label>include:</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" id="include-ping" checked> ping_statistics</label>
+                                <label><input type="checkbox" id="include-traceroute"> traceroute_data</label>
+                                <label><input type="checkbox" id="include-charts" checked> charts</label>
+                                <label><input type="checkbox" id="include-events" checked> failure_events</label>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="report-preview">
+                        <h3>report_preview</h3>
+                        <div id="report-content" class="report-display">
+                            <p>configure_and_generate_report_to_see_preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script src="network-monitor.js"></script>
+</body>
+</html>
