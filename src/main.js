@@ -2,7 +2,7 @@ const { app, BrowserWindow, Menu, Tray, ipcMain, shell, nativeImage, Notificatio
 const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
-const notificationState = require('electron-notification-state');
+const notifier = require('node-notifier');
 
 let mainWindow;
 let tray;
@@ -206,19 +206,18 @@ const createTray = () => {
 // Show notification
 const showNotification = (title, body) => {
   // Only show notification if app is in background or not focused
-  const shouldNotify = !mainWindow.isFocused() || notificationState.getDoNotDisturb();
+  const shouldNotify = !mainWindow.isFocused();
   
-  if (Notification.isSupported() && shouldNotify) {
-    const notification = new Notification({
+  if (shouldNotify) {
+    notifier.notify({
       title: title,
-      body: body,
+      message: body,
       icon: getIconPath(),
-      silent: false
+      sound: true,
+      wait: true
     });
     
-    notification.show();
-    
-    notification.on('click', () => {
+    notifier.on('click', () => {
       // Focus the app when the notification is clicked
       if (mainWindow) {
         if (!mainWindow.isVisible()) {

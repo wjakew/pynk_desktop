@@ -11,7 +11,12 @@
     "dist": "electron-builder",
     "dist-mac": "electron-builder --mac --universal"
   },
-  "keywords": ["network", "ping", "monitoring", "electron"],
+  "keywords": [
+    "network",
+    "ping",
+    "monitoring",
+    "electron"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
@@ -22,7 +27,7 @@
     "chart.js": "^4.4.0",
     "jspdf": "^2.5.1",
     "html2canvas": "^1.4.1",
-    "electron-notification-state": "^1.0.0"
+    "node-notifier": "^10.0.1"
   },
   "build": {
     "appId": "com.pynk.desktop",
@@ -35,15 +40,22 @@
       "node_modules/**/*"
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "src/icon.ico"
     },
     "mac": {
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "icon": "src/icon.png"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "icon": "src/icon.png",
       "category": "Network;Utility"
     }
