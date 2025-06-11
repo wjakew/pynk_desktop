@@ -20,9 +20,10 @@ const createWindow = () => {
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    titleBarStyle: 'hidden',
+    titleBarStyle: 'hiddenInset',
     frame: false,
     icon: getIconPath(),
+    trafficLightPosition: { x: 10, y: 10 },
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -31,6 +32,11 @@ const createWindow = () => {
     backgroundColor: '#000000',
     show: false
   });
+
+  // Hide default menu bar
+  if (process.platform !== 'darwin') {
+    mainWindow.setMenuBarVisibility(false);
+  }
 
   mainWindow.loadFile('src/index.html');
 
@@ -129,15 +135,9 @@ const createAppMenu = () => {
       label: 'Help',
       submenu: [
         {
-          label: 'About Pynk',
-          click: () => {
-            showAboutDialog();
-          }
-        },
-        {
           label: 'Visit GitHub Repo',
           click: async () => {
-            await shell.openExternal('https://github.com/jakubwawak/pynk_desktop');
+            await shell.openExternal('https://github.com/wjakew/pynk_desktop');
           }
         }
       ]
@@ -299,29 +299,27 @@ ipcMain.on('network-status-change', (event, host, status) => {
   showNotification(title, body);
 });
 
-// Window control handlers
-ipcMain.handle('minimize-window', (event) => {
-  const win = BrowserWindow.fromWebContents(event.sender);
-  if (win) win.minimize();
-  return true;
+// Handle window control IPC events
+ipcMain.on('minimize-window', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
 });
 
-ipcMain.handle('toggle-maximize-window', (event) => {
-  const win = BrowserWindow.fromWebContents(event.sender);
-  if (win) {
-    if (win.isMaximized()) {
-      win.unmaximize();
+ipcMain.on('toggle-maximize-window', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
     } else {
-      win.maximize();
+      mainWindow.maximize();
     }
   }
-  return true;
 });
 
-ipcMain.handle('close-window', (event) => {
-  const win = BrowserWindow.fromWebContents(event.sender);
-  if (win) win.close();
-  return true;
+ipcMain.on('close-window', () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
 });
 
 // IPC handlers for network operations

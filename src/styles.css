@@ -28,6 +28,7 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #333;
+    position: relative;
 }
 
 .titlebar-drag-region {
@@ -43,11 +44,19 @@ body {
     font-size: 12px;
     font-weight: 500;
     color: #FF69B4;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: auto;
+    pointer-events: none;
+    -webkit-app-region: drag;
 }
 
 .window-controls {
     display: flex;
     -webkit-app-region: no-drag;
+    z-index: 10;
 }
 
 .window-control {

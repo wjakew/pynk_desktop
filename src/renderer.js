@@ -17,20 +17,23 @@ class PynkRenderer {
         
         // Set up IPC event handlers
         this.setupIPCHandlers();
+        
+        // Initialize the home view since it's the default view
+        this.initializeHomeView();
     }
 
     initializeApp() {
         // Window controls
         document.getElementById('minimize-btn').addEventListener('click', () => {
-            ipcRenderer.invoke('minimize-window');
+            ipcRenderer.send('minimize-window');
         });
 
         document.getElementById('maximize-btn').addEventListener('click', () => {
-            ipcRenderer.invoke('toggle-maximize-window');
+            ipcRenderer.send('toggle-maximize-window');
         });
 
         document.getElementById('close-btn').addEventListener('click', () => {
-            ipcRenderer.invoke('close-window');
+            ipcRenderer.send('close-window');
         });
 
         // Navigation
@@ -123,6 +126,11 @@ class PynkRenderer {
         document.getElementById('import-hosts-input').addEventListener('change', (e) => {
             this.importHosts(e.target.files[0]);
             e.target.value = ''; // Reset file input
+        });
+
+        // Clear data button
+        document.getElementById('clear-data-btn').addEventListener('click', () => {
+            this.clearPingData();
         });
 
         // Initialize charts
@@ -577,6 +585,16 @@ class PynkRenderer {
                                 return `${context.parsed.y} ms`;
                             }
                         }
+                    },
+                    title: {
+                        display: false,
+                        text: '',
+                        font: {
+                            size: 16,
+                            family: "'JetBrains Mono', monospace"
+                        },
+                        color: '#ffffff',
+                        padding: 20
                     }
                 }
             }
@@ -612,7 +630,26 @@ class PynkRenderer {
 
     updateHomeChart() {
         const hostId = document.getElementById('home-selected-host').value;
-        if (!hostId) return;
+        
+        // If no host is selected or there are no hosts, show a message in the chart
+        if (!hostId || this.hosts.length === 0) {
+            // Display empty chart with a "no data" message
+            this.charts.homePing.data.labels = [];
+            this.charts.homePing.data.datasets[0].data = [];
+            this.charts.homePing.data.datasets[0].label = 'No host selected';
+            
+            // Add a custom label to show when no data
+            this.charts.homePing.options.plugins.title = {
+                display: this.hosts.length === 0,
+                text: this.hosts.length === 0 ? 'No hosts configured - Add a host in hosts_and_jobs section' : '',
+                font: {
+                    size: 16
+                }
+            };
+            
+            this.charts.homePing.update();
+            return;
+        }
         
         const host = this.hosts.find(h => h.id === hostId);
         if (!host) return;
@@ -628,6 +665,11 @@ class PynkRenderer {
         });
         
         const responseData = lastSixtyData.map(p => p.success ? p.avgTime : null);
+        
+        // Reset the title if it was showing "no hosts" message
+        this.charts.homePing.options.plugins.title = {
+            display: false
+        };
         
         // Update chart with new data
         this.charts.homePing.data.labels = labels;
@@ -1486,6 +1528,11 @@ class PynkRenderer {
                 
                 this.updateHostsList();
                 this.updateJobsList();
+                
+                // Update all host selectors
+                this.updateHomeHostSelector();
+                this.updateDataHostSelector();
+                this.updateHostSelector();
             }
             
             // Load theme preference
@@ -1647,9 +1694,20 @@ class PynkRenderer {
             }
         });
     }
+
+    clearPingData() {
+        if (confirm('Are you sure you want to clear all ping data? This action cannot be undone. Your host list will be preserved.')) {
+            this.pingData.clear();
+            this.saveData();
+            this.updateHostsList();
+            this.updateJobsList();
+            alert('Ping data has been cleared successfully. Host list has been preserved.');
+        }
+    }
 }
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.pynkApp = new PynkRenderer();
+    window.app = window.pynkApp; // Alias for compatibility with HTML button onclick handlers
 });

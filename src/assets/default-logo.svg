@@ -1,10 +1,17 @@
-<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .text { font-family: Arial, sans-serif; font-weight: bold; }
-    .pink { fill: #FF69B4; }
-    .circle { fill: #FF69B4; opacity: 0.2; }
-  </style>
-  <circle class="circle" cx="60" cy="60" r="55" />
-  <path class="pink" d="M30,40 L30,80 L40,80 L40,65 L55,80 L70,65 L70,80 L80,80 L80,40 L70,40 L70,55 L55,40 L40,55 L40,40 Z" />
-  <text class="text" x="60" y="100" text-anchor="middle" font-size="14">PYNK</text>
-</svg> 
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="1024.000000pt" height="1024.000000pt" viewBox="0 0 1024.000000 1024.000000"
+ preserveAspectRatio="xMidYMid meet">
+
+<g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)"
+fill="#000000" stroke="none">
+<path d="M2320 10135 c-745 -91 -1411 -515 -1809 -1152 -194 -312 -320 -680
+-361 -1055 -7 -65 -10 -987 -10 -2800 0 -2349 2 -2720 15 -2832 98 -836 616
+-1567 1370 -1936 322 -157 605 -229 974 -250 225 -12 4975 -13 5198 0 515 29
+968 194 1382 503 123 92 376 345 468 468 310 414 472 860 503 1379 12 211 13
+5115 0 5337 -35 630 -280 1184 -720 1623 -384 385 -819 608 -1380 707 -87 15
+-318 17 -2810 19 -2158 2 -2737 -1 -2820 -11z"/>
+</g>
+</svg>

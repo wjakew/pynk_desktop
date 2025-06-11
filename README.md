@@ -90,6 +90,12 @@ Interactive charts display real-time and historical network performance data, ma
 
 Pynk runs in the background with a system tray icon for quick access and minimal resource usage.
 
+### Data Management
+
+Pynk provides options to manage your monitoring data:
+- Export/import host lists for backup or migration
+- Clear ping data while preserving your host configurations
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
