@@ -42,7 +42,7 @@ body {
 .window-title {
     font-size: 12px;
     font-weight: 500;
-    color: #8B5CF6;
+    color: #FF69B4;
 }
 
 .window-controls {
@@ -101,7 +101,7 @@ body {
 }
 
 .nav-btn.active {
-    color: #8B5CF6;
+    color: #FF69B4;
     background: #2a1f3d;
 }
 
@@ -135,12 +135,12 @@ body {
 .view-header h2 {
     font-size: 18px;
     font-weight: 500;
-    color: #8B5CF6;
+    color: #FF69B4;
 }
 
 /* Buttons */
 .btn-primary {
-    background: #8B5CF6;
+    background: #FF69B4;
     color: #ffffff;
     border: none;
     padding: 8px 16px;
@@ -152,7 +152,7 @@ body {
 }
 
 .btn-primary:hover {
-    background: #7C3AED;
+    background: #FF458A;
 }
 
 .btn-secondary {
@@ -169,7 +169,7 @@ body {
 
 .btn-secondary:hover {
     background: #222;
-    border-color: #8B5CF6;
+    border-color: #FF69B4;
 }
 
 /* Home View */
@@ -205,7 +205,7 @@ body {
     padding: 8px 12px;
     min-width: 180px;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238B5CF6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FF69B4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 30px;
@@ -213,7 +213,7 @@ body {
 
 .view-select:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #FF69B4;
 }
 
 /* Data View */
@@ -245,7 +245,7 @@ body {
 
 .date-selector input[type="date"]:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #FF69B4;
 }
 
 .data-table-container {
@@ -264,7 +264,7 @@ body {
 
 .data-table th {
     background: #1a1a1a;
-    color: #8B5CF6;
+    color: #FF69B4;
     text-align: left;
     padding: 12px;
     position: sticky;
@@ -309,7 +309,7 @@ body {
 
 .section-title {
     font-size: 14px;
-    color: #8B5CF6;
+    color: #FF69B4;
     margin-bottom: 12px;
     text-transform: lowercase;
 }
@@ -332,7 +332,7 @@ body {
 }
 
 .host-item:hover, .job-item:hover {
-    border-color: #8B5CF6;
+    border-color: #FF69B4;
 }
 
 .host-name {
@@ -411,7 +411,7 @@ body {
 }
 
 .dashboard-card h3 {
-    color: #8B5CF6;
+    color: #FF69B4;
     font-size: 14px;
     margin-bottom: 12px;
     flex-shrink: 0;
@@ -499,13 +499,14 @@ body {
 }
 
 .modal-content h3 {
-    color: #8B5CF6;
+    color: #FF69B4;
     margin-bottom: 16px;
     font-size: 16px;
 }
 
 .modal-content input,
-.modal-content select {
+.modal-content select,
+.modal-content textarea {
     width: 100%;
     background: #000;
     border: 1px solid #333;
@@ -518,9 +519,10 @@ body {
 }
 
 .modal-content input:focus,
-.modal-content select:focus {
+.modal-content select:focus,
+.modal-content textarea:focus {
     outline: none;
-    border-color: #8B5CF6;
+    border-color: #FF69B4;
 }
 
 .modal-actions {
@@ -546,9 +548,9 @@ body {
 }
 
 .report-config h3 {
-    color: #8B5CF6;
+    color: #FF69B4;
     font-size: 14px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .report-config label {
@@ -595,9 +597,9 @@ body {
 }
 
 .report-preview h3 {
-    color: #8B5CF6;
+    color: #FF69B4;
     font-size: 14px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .report-display {
@@ -625,7 +627,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #FF69B4;
 }
 
 /* Ping Statistics */
@@ -645,7 +647,7 @@ body {
     padding: 8px 12px;
     background: #000;
     border-radius: 4px;
-    border-left: 3px solid #8B5CF6;
+    border-left: 3px solid #FF69B4;
 }
 
 .stats-label {
