@@ -5,11 +5,11 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron . --disable-gpu",
-    "build-win": "electron-packager . bind --platform=win32 --arch=x64 --out=dist/ --overwrite",
+    "build-win": "electron-packager . pynk --platform=win32 --arch=x64 --out=dist/ --overwrite",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist-mac": "electron-builder --mac --universal"
-  },
+  },  
   "keywords": [
     "network",
     "ping",
@@ -30,7 +30,7 @@
     "node-notifier": "^10.0.1"
   },
   "build": {
-    "appId": "com.jakubwawak.bind",
+    "appId": "com.jakubwawak.pynk",
     "mac": {
       "target": [
         {
