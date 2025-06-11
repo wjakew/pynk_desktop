@@ -12,7 +12,7 @@
         <!-- Custom Title Bar -->
         <div class="titlebar">
             <div class="titlebar-drag-region">
-                <div class="window-title">pynk_desktop</div>
+                <div class="window-title">pynk by Jakub Wawak</div>
             </div>
             <div class="window-controls">
                 <button class="window-control minimize" id="minimize-btn">−</button>
@@ -28,6 +28,7 @@
             <button class="nav-btn" data-view="hosts">hosts_and_jobs</button>
             <button class="nav-btn" data-view="dashboard">dashboard</button>
             <button class="nav-btn" data-view="reports">reports</button>
+            <button class="nav-btn" data-view="settings">settings</button>
         </nav>
 
         <!-- Main Content -->
@@ -258,6 +259,42 @@
                         <h3>report_preview</h3>
                         <div id="report-content" class="report-display">
                             <p>configure_and_generate_report_to_see_preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings View -->
+            <div class="view" id="settings-view">
+                <div class="view-header">
+                    <h2>application_settings</h2>
+                </div>
+
+                <div class="settings-container">
+                    <div class="settings-card">
+                        <h3>appearance</h3>
+                        <div class="settings-option">
+                            <label for="theme-toggle">theme_mode:</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="theme-toggle">
+                                <label for="theme-toggle" class="toggle-label">
+                                    <span class="toggle-option">dark</span>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-option">light</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>data_management</h3>
+                        <div class="settings-group">
+                            <h4>host_list</h4>
+                            <div class="settings-actions">
+                                <button id="export-hosts-btn" class="btn-secondary">export_hosts</button>
+                                <button id="import-hosts-btn" class="btn-secondary">import_hosts</button>
+                                <input type="file" id="import-hosts-input" accept=".json" style="display: none;">
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -105,6 +105,24 @@ class PynkRenderer {
             this.exportPDF();
         });
 
+        // Settings controls
+        document.getElementById('theme-toggle').addEventListener('change', (e) => {
+            this.toggleTheme(e.target.checked);
+        });
+        
+        document.getElementById('export-hosts-btn').addEventListener('click', () => {
+            this.exportHosts();
+        });
+        
+        document.getElementById('import-hosts-btn').addEventListener('click', () => {
+            document.getElementById('import-hosts-input').click();
+        });
+        
+        document.getElementById('import-hosts-input').addEventListener('change', (e) => {
+            this.importHosts(e.target.files[0]);
+            e.target.value = ''; // Reset file input
+        });
+
         // Initialize charts
         this.initializeCharts();
         
@@ -148,6 +166,8 @@ class PynkRenderer {
             this.updateDashboard();
         } else if (viewName === 'reports') {
             this.updateReportsView();
+        } else if (viewName === 'settings') {
+            // No specific initialization needed for settings view
         }
     }
 
@@ -1445,6 +1465,14 @@ class PynkRenderer {
                 this.updateHostsList();
                 this.updateJobsList();
             }
+            
+            // Load theme preference
+            const savedTheme = localStorage.getItem('pynk_theme');
+            if (savedTheme) {
+                const isLight = savedTheme === 'light';
+                this.toggleTheme(isLight);
+                document.getElementById('theme-toggle').checked = isLight;
+            }
         } catch (error) {
             console.error('Failed to load data:', error);
         }
@@ -1484,6 +1512,88 @@ class PynkRenderer {
                 this.updateHomeChart();
             }
         }, 60000); // Update every minute
+    }
+
+    toggleTheme(isLight) {
+        if (isLight) {
+            document.body.classList.add('light-theme');
+        } else {
+            document.body.classList.remove('light-theme');
+        }
+        
+        // Save theme preference
+        localStorage.setItem('pynk_theme', isLight ? 'light' : 'dark');
+    }
+    
+    exportHosts() {
+        if (this.hosts.length === 0) {
+            alert('No hosts configured to export.');
+            return;
+        }
+        
+        // Create a downloadable JSON file with the hosts
+        const hostsData = JSON.stringify(this.hosts, null, 2);
+        const blob = new Blob([hostsData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pynk_hosts_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    importHosts(file) {
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedHosts = JSON.parse(e.target.result);
+                
+                if (!Array.isArray(importedHosts)) {
+                    throw new Error('Invalid hosts file format');
+                }
+                
+                // Validate each host object
+                importedHosts.forEach(host => {
+                    if (!host.id || !host.name || !host.alias || !host.interval) {
+                        throw new Error('Invalid host data in file');
+                    }
+                });
+                
+                // Confirm the import
+                const confirmMessage = `Import ${importedHosts.length} hosts? This will ${this.hosts.length > 0 ? 'merge with' : 'add to'} your existing hosts.`;
+                if (confirm(confirmMessage)) {
+                    // Merge with existing hosts, avoid duplicates by checking IDs
+                    const existingIds = new Set(this.hosts.map(h => h.id));
+                    
+                    importedHosts.forEach(host => {
+                        if (!existingIds.has(host.id)) {
+                            // New host, add it
+                            this.hosts.push({
+                                ...host,
+                                status: 'stopped', // Always start as stopped
+                                lastPing: null
+                            });
+                        }
+                    });
+                    
+                    this.saveData();
+                    this.updateHostsList();
+                    this.updateJobsList();
+                    this.updateHostSelector();
+                    this.updateHomeHostSelector();
+                    this.updateDataHostSelector();
+                    
+                    alert(`Successfully imported ${importedHosts.length} hosts.`);
+                }
+            } catch (error) {
+                alert(`Error importing hosts: ${error.message}`);
+                console.error('Import error:', error);
+            }
+        };
+        
+        reader.readAsText(file);
     }
 }
 

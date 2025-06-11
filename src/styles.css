@@ -753,7 +753,266 @@ body {
 /* Modify existing views to ensure they're hidden when not active */
 #hosts-view.active,
 #dashboard-view.active,
-#reports-view.active {
+#reports-view.active,
+#settings-view.active {
     display: flex;
     flex-direction: column;
+}
+
+/* Settings View */
+#settings-view {
+    overflow: auto;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-height: min-content;
+    padding-bottom: 24px;
+}
+
+.settings-card {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.settings-card h3 {
+    color: #FF69B4;
+    font-size: 16px;
+    margin-bottom: 16px;
+    text-transform: lowercase;
+}
+
+.settings-card h4 {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 12px;
+    font-weight: normal;
+}
+
+.settings-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 8px 0;
+}
+
+.settings-group {
+    padding: 8px 0;
+}
+
+.settings-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 8px;
+}
+
+.toggle-option {
+    color: #888;
+    font-size: 12px;
+}
+
+.toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+    background-color: #111;
+    border: 1px solid #333;
+    border-radius: 24px;
+    transition: 0.4s;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 2px;
+    background-color: #FF69B4;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked + .toggle-label .toggle-slider:before {
+    transform: translateX(24px);
+    background-color: #10B981;
+}
+
+/* Light Theme Variables */
+:root {
+    --background-color: #000000;
+    --text-color: #ffffff;
+    --accent-color: #FF69B4;
+    --card-background: #111;
+    --border-color: #333;
+    --hover-color: #222;
+    --secondary-text: #888;
+}
+
+/* Light Theme Class */
+body.light-theme {
+    --background-color: #f5f5f5;
+    --text-color: #333333;
+    --accent-color: #FF458A;
+    --card-background: #ffffff;
+    --border-color: #dddddd;
+    --hover-color: #eeeeee;
+    --secondary-text: #666666;
+    
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+/* Apply theme variables to elements */
+body.light-theme .titlebar {
+    background: var(--card-background);
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.light-theme .window-title {
+    color: var(--accent-color);
+}
+
+body.light-theme .window-control {
+    color: var(--text-color);
+}
+
+body.light-theme .navbar {
+    background: var(--card-background);
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.light-theme .nav-btn {
+    color: var(--secondary-text);
+}
+
+body.light-theme .nav-btn:hover {
+    color: var(--text-color);
+    background: var(--hover-color);
+}
+
+body.light-theme .nav-btn.active {
+    color: var(--accent-color);
+    background: #ffeef5;
+}
+
+body.light-theme .view-header h2,
+body.light-theme .section-title,
+body.light-theme .dashboard-card h3,
+body.light-theme .settings-card h3 {
+    color: var(--accent-color);
+}
+
+body.light-theme .dashboard-card,
+body.light-theme .settings-card,
+body.light-theme .report-config,
+body.light-theme .report-preview,
+body.light-theme .list-container,
+body.light-theme .fullscreen-chart-container {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+}
+
+body.light-theme .host-item, 
+body.light-theme .job-item,
+body.light-theme .status-item,
+body.light-theme .stats-item {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+}
+
+body.light-theme .toggle-slider {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+}
+
+body.light-theme .btn-secondary {
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+body.light-theme .btn-secondary:hover {
+    background: var(--hover-color);
+    border-color: var(--accent-color);
+}
+
+body.light-theme .data-table th {
+    background: var(--card-background);
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.light-theme .data-table td {
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.light-theme .data-table tbody tr:hover {
+    background: var(--hover-color);
+}
+
+body.light-theme ::-webkit-scrollbar-track {
+    background: var(--card-background);
+}
+
+body.light-theme ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+body.light-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
+body.light-theme .modal-content {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+}
+
+body.light-theme .modal-content input,
+body.light-theme .modal-content select,
+body.light-theme .modal-content textarea,
+body.light-theme .view-select,
+body.light-theme .date-selector input[type="date"] {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+body.light-theme .modal-content input:focus,
+body.light-theme .modal-content select:focus,
+body.light-theme .modal-content textarea:focus,
+body.light-theme .view-select:focus,
+body.light-theme .date-selector input[type="date"]:focus {
+    border-color: var(--accent-color);
+}
+
+body.light-theme .event-time {
+    color: var(--secondary-text);
+}
+
+body.light-theme .event-message {
+    color: var(--text-color);
 }
