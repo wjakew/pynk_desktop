@@ -38,7 +38,7 @@
           "arch": ["x64", "arm64"]
         }
       ],
-      "icon": "src/logo.icns"
+      "icon": "src/icon.icns"
     },
     "win": {
       "target": "nsis",
@@ -46,7 +46,7 @@
     },
     "linux": {
       "target": "AppImage",
-      "icon": "src/logo.png"
+      "icon": "src/icon.png"
     }
   }
 }
