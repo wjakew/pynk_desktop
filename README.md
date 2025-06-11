@@ -2,6 +2,8 @@
 
 A powerful network monitoring and ping analysis desktop application built with Electron.
 
+![src1](/readme_resources/src1.png)
+
 ## Features
 
 - **Real-time Network Monitoring**: Track host availability and response times in real-time
@@ -12,6 +14,8 @@ A powerful network monitoring and ping analysis desktop application built with E
 - **System Tray Integration**: Run in the background with notifications for host status changes
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
+![src2](/readme_resources/src2.png)
+
 ## Technologies
 
 - **Electron**: Cross-platform desktop application framework
@@ -20,6 +24,8 @@ A powerful network monitoring and ping analysis desktop application built with E
 - **Node.js**: Backend network operations
 
 ## Getting Started
+
+![src3](/readme_resources/src3.png)
 
 ### Prerequisites
 
@@ -95,10 +101,6 @@ Pynk runs in the background with a system tray icon for quick access and minimal
 Pynk provides options to manage your monitoring data:
 - Export/import host lists for backup or migration
 - Clear ping data while preserving your host configurations
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
