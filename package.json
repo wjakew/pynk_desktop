@@ -16,7 +16,7 @@
     "monitoring",
     "electron"
   ],
-  "author": "Your Name",
+  "author": "Jakub Wawak",
   "license": "MIT",
   "devDependencies": {
     "electron": "^27.0.0",
@@ -42,7 +42,7 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "src/logo.ico"
+      "icon": "src/icon.ico"
     },
     "linux": {
       "target": "AppImage",
