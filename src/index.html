@@ -209,6 +209,24 @@
                         </div>
                     </div>
                     
+                    <div class="dashboard-card">
+                        <h3>ip_tracker</h3>
+                        <div id="dashboard-ip-tracker" class="ip-tracker-container">
+                            <div class="current-ips">
+                                <h4>current_network_interfaces</h4>
+                                <div id="dashboard-current-ips" class="ip-list">
+                                    <!-- Current IPs will be populated here -->
+                                </div>
+                            </div>
+                            <div class="ip-changes">
+                                <h4>recent_ip_changes</h4>
+                                <div id="dashboard-ip-changes" class="ip-history-list">
+                                    <!-- Recent IP changes will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="dashboard-card full-width">
                         <h3>traceroute_to_8.8.8.8</h3>
                         <div class="traceroute-container">
@@ -302,6 +320,25 @@
                             <div class="settings-actions">
                                 <button id="clear-data-btn" class="btn-secondary">clear_ping_data</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>my_local_ips</h3>
+                        <div class="settings-group">
+                            <h4>current_network_interfaces</h4>
+                            <div id="ip-tracker" class="ip-list">
+                                <!-- Local IPs will be populated here -->
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h4>ip_history</h4>
+                            <div id="ip-history" class="ip-history-list">
+                                <!-- IP history will be populated here -->
+                            </div>
+                        </div>
+                        <div class="settings-actions">
+                            <button id="refresh-ips-btn" class="btn-secondary">refresh_ips</button>
                         </div>
                     </div>
                 </div>

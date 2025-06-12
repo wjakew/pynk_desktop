@@ -1083,3 +1083,102 @@ body.light-theme .event-message {
     color: var(--accent-hover);
     text-decoration: underline;
 }
+
+/* IP Tracker styles */
+.ip-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.ip-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ip-interface {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.ip-address {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ip-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.ip-history-item {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-bg);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ip-history-date {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.ip-history-details {
+    display: flex;
+    justify-content: space-between;
+}
+
+body.light-theme .ip-item,
+body.light-theme .ip-history-item {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+}
+
+/* IP Tracker in Dashboard */
+.ip-tracker-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ip-tracker-container h4 {
+    font-size: 0.9em;
+    color: var(--accent-color);
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.dashboard-ip-changes .ip-history-item {
+    padding: 6px 10px;
+}
+
+/* For dashboard, make the lists more compact */
+#dashboard-current-ips.ip-list,
+#dashboard-ip-changes.ip-history-list {
+    max-height: 150px;
+}
+
+#dashboard-current-ips .ip-item {
+    padding: 6px 10px;
+}
+
+.ip-action {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    font-style: italic;
+    margin: 0 5px;
+}

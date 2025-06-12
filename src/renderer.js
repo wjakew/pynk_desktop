@@ -10,6 +10,7 @@ class PynkRenderer {
         this.tracerouteInterval = null;
         this.eventsInterval = null;
         this.homeChartUpdateInterval = null;
+        this.ipHistory = []; // Add IP history tracking
         
         this.initializeApp();
         this.loadData();
@@ -133,6 +134,11 @@ class PynkRenderer {
             this.clearPingData();
         });
 
+        // IP tracking refresh button
+        document.getElementById('refresh-ips-btn').addEventListener('click', () => {
+            this.refreshLocalIPs();
+        });
+
         // Initialize charts
         this.initializeCharts();
         
@@ -176,10 +182,9 @@ class PynkRenderer {
             this.updateDashboard();
         } else if (viewName === 'reports') {
             this.updateReportsView();
-        } else if (viewName === 'about') {
-            // No specific initialization needed for about view
         } else if (viewName === 'settings') {
-            // No specific initialization needed for settings view
+            // Refresh and display local IPs
+            this.refreshLocalIPs();
         }
     }
 
@@ -317,6 +322,11 @@ class PynkRenderer {
         if (previousStatus !== null && previousStatus !== processedResult.success) {
             // Emit status change event for notifications
             ipcRenderer.send('network-status-change', host, processedResult.success);
+        }
+        
+        // Check if we have IP information and update IP tracker
+        if (processedResult.hostIPs && processedResult.hostIPs.length > 0) {
+            this.handleIPChange(processedResult.hostIPs);
         }
         
         data.push(processedResult);
@@ -797,6 +807,7 @@ class PynkRenderer {
         this.updateRecentEvents();
         this.updateCharts();
         this.updatePingStatistics();
+        this.updateDashboardIPTracker();
         
         // Clean up any existing traceroute interval
         if (this.tracerouteInterval) {
@@ -1445,7 +1456,7 @@ class PynkRenderer {
             default: cutoff.setDate(now.getDate() - 7); // Default to a week
         }
         
-        let csv = 'timestamp,host,alias,success,avg_time,packet_loss,min_time,max_time\n';
+        let csv = 'timestamp,host,alias,success,avg_time,packet_loss,min_time,max_time,network_interface,source_ip\n';
         
         // Filter by selected hosts and time period
         selectedHosts.forEach(hostId => {
@@ -1456,7 +1467,16 @@ class PynkRenderer {
             const filteredData = data.filter(ping => new Date(ping.timestamp) >= cutoff);
             
             filteredData.forEach(ping => {
-                csv += `${ping.timestamp},${host.name},${host.alias},${ping.success},${ping.avgTime},${ping.packetLoss},${ping.minTime},${ping.maxTime}\n`;
+                // Get the main local IP if available
+                let networkInterface = '';
+                let sourceIP = '';
+                
+                if (ping.hostIPs && ping.hostIPs.length > 0) {
+                    networkInterface = ping.hostIPs[0].name || '';
+                    sourceIP = ping.hostIPs[0].address || '';
+                }
+                
+                csv += `${ping.timestamp},${host.name},${host.alias},${ping.success},${ping.avgTime},${ping.packetLoss},${ping.minTime},${ping.maxTime},${networkInterface},${sourceIP}\n`;
             });
         });
 
@@ -1535,6 +1555,12 @@ class PynkRenderer {
                 this.updateHostSelector();
             }
             
+            // Load IP history
+            const savedIPHistory = localStorage.getItem('pynk_ip_history');
+            if (savedIPHistory) {
+                this.ipHistory = JSON.parse(savedIPHistory) || [];
+            }
+            
             // Load theme preference
             const savedTheme = localStorage.getItem('pynk_theme');
             if (savedTheme) {
@@ -1561,6 +1587,14 @@ class PynkRenderer {
                 this.updateJobsList();
             }
         }, 5000);
+        
+        // Check for IP changes every 10 minutes
+        setInterval(() => {
+            // Only run if we have some ping data already (app is being used)
+            if (this.pingData.size > 0) {
+                this.refreshLocalIPs();
+            }
+        }, 600000);
         
         // Clean up intervals when window is closed
         window.addEventListener('beforeunload', () => {
@@ -1696,12 +1730,213 @@ class PynkRenderer {
     }
 
     clearPingData() {
-        if (confirm('Are you sure you want to clear all ping data? This action cannot be undone. Your host list will be preserved.')) {
-            this.pingData.clear();
+        if (confirm('Are you sure you want to clear all ping data? This action cannot be undone.')) {
+            this.pingData = new Map();
             this.saveData();
-            this.updateHostsList();
-            this.updateJobsList();
-            alert('Ping data has been cleared successfully. Host list has been preserved.');
+            alert('All ping data has been cleared.');
+        }
+    }
+
+    // IP Tracking functions
+    async refreshLocalIPs() {
+        try {
+            // Get current IPs using ping to a common host
+            const pingResult = await ipcRenderer.invoke('ping-host', '8.8.8.8', 1);
+            if (pingResult && pingResult.hostIPs) {
+                this.updateIPTracker(pingResult.hostIPs);
+            } else {
+                console.error('No IP data received');
+            }
+        } catch (error) {
+            console.error('Error refreshing IPs:', error);
+        }
+    }
+
+    updateIPTracker(ips) {
+        if (!ips || ips.length === 0) return;
+        
+        const ipTrackerContainer = document.getElementById('ip-tracker');
+        const ipHistoryContainer = document.getElementById('ip-history');
+        
+        // Clear current display
+        ipTrackerContainer.innerHTML = '';
+        
+        // Display current IPs
+        ips.forEach(ip => {
+            const ipItem = document.createElement('div');
+            ipItem.className = 'ip-item';
+            ipItem.innerHTML = `
+                <span class="ip-interface">${ip.name}</span>
+                <span class="ip-address">${ip.address}</span>
+            `;
+            ipTrackerContainer.appendChild(ipItem);
+        });
+        
+        // Check for IP changes
+        this.handleIPChange(ips);
+        
+        // Update IP history display
+        ipHistoryContainer.innerHTML = '';
+        
+        // Display last 10 history entries
+        const displayHistory = this.ipHistory.slice(-10).reverse();
+        
+        displayHistory.forEach(historyEntry => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'ip-history-item';
+            
+            const dateStr = new Date(historyEntry.timestamp).toLocaleString();
+            historyItem.innerHTML = `
+                <div class="ip-history-date">${dateStr}</div>
+                <div class="ip-history-details">
+                    <span class="ip-interface">${historyEntry.interface}</span>
+                    <span class="ip-address">${historyEntry.address}</span>
+                </div>
+            `;
+            
+            ipHistoryContainer.appendChild(historyItem);
+        });
+    }
+
+    handleIPChange(currentIPs) {
+        // Skip if we don't have history yet
+        if (this.ipHistory.length === 0) {
+            // First time, just add all IPs to history
+            currentIPs.forEach(ip => {
+                this.ipHistory.push({
+                    timestamp: new Date().toISOString(),
+                    interface: ip.name,
+                    address: ip.address,
+                    action: 'initial'
+                });
+            });
+            this.saveIPHistory();
+            return;
+        }
+        
+        // Get the most recent history entry for each interface
+        const lastIPs = {};
+        for (let i = this.ipHistory.length - 1; i >= 0; i--) {
+            const entry = this.ipHistory[i];
+            if (!lastIPs[entry.interface]) {
+                lastIPs[entry.interface] = entry;
+            }
+        }
+        
+        // Check for changes in existing interfaces
+        currentIPs.forEach(ip => {
+            const lastIP = lastIPs[ip.name];
+            
+            if (!lastIP || lastIP.address !== ip.address) {
+                // New interface or IP changed
+                this.ipHistory.push({
+                    timestamp: new Date().toISOString(),
+                    interface: ip.name,
+                    address: ip.address,
+                    action: lastIP ? 'changed' : 'added'
+                });
+            }
+        });
+        
+        // Check for removed interfaces
+        Object.keys(lastIPs).forEach(interfaceName => {
+            const stillExists = currentIPs.some(ip => ip.name === interfaceName);
+            
+            if (!stillExists) {
+                this.ipHistory.push({
+                    timestamp: new Date().toISOString(),
+                    interface: interfaceName,
+                    address: lastIPs[interfaceName].address,
+                    action: 'removed'
+                });
+            }
+        });
+        
+        // Save history
+        this.saveIPHistory();
+    }
+
+    saveIPHistory() {
+        // Keep only last 100 entries
+        if (this.ipHistory.length > 100) {
+            this.ipHistory = this.ipHistory.slice(-100);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('pynk_ip_history', JSON.stringify(this.ipHistory));
+    }
+
+    // Add this new method for updating the dashboard IP visualization
+    updateDashboardIPTracker() {
+        const currentIPsContainer = document.getElementById('dashboard-current-ips');
+        const ipChangesContainer = document.getElementById('dashboard-ip-changes');
+        
+        if (!currentIPsContainer || !ipChangesContainer) return;
+        
+        // Clear current display
+        currentIPsContainer.innerHTML = '';
+        ipChangesContainer.innerHTML = '';
+        
+        // Get host with most recent ping data to display current IPs
+        let latestPingData = null;
+        let latestTimestamp = 0;
+        
+        this.hosts.forEach(host => {
+            const data = this.pingData.get(host.id) || [];
+            if (data.length > 0) {
+                const latestPing = data[data.length - 1];
+                if (latestPing && latestPing.timestamp && new Date(latestPing.timestamp) > latestTimestamp) {
+                    latestTimestamp = new Date(latestPing.timestamp);
+                    latestPingData = latestPing;
+                }
+            }
+        });
+        
+        // Display current IPs from the latest ping data
+        if (latestPingData && latestPingData.hostIPs && latestPingData.hostIPs.length > 0) {
+            latestPingData.hostIPs.forEach(ip => {
+                const ipItem = document.createElement('div');
+                ipItem.className = 'ip-item';
+                ipItem.innerHTML = `
+                    <span class="ip-interface">${ip.name}</span>
+                    <span class="ip-address">${ip.address}</span>
+                `;
+                currentIPsContainer.appendChild(ipItem);
+            });
+        } else {
+            // If no IP data available
+            currentIPsContainer.innerHTML = '<div class="ip-item">No IP data available</div>';
+        }
+        
+        // Display recent IP changes (only the last 5)
+        const recentChanges = this.ipHistory
+            .filter(entry => entry.action === 'changed' || entry.action === 'added' || entry.action === 'removed')
+            .slice(-5)
+            .reverse();
+        
+        if (recentChanges.length > 0) {
+            recentChanges.forEach(change => {
+                const changeItem = document.createElement('div');
+                changeItem.className = 'ip-history-item';
+                
+                const dateStr = new Date(change.timestamp).toLocaleString();
+                const actionText = change.action === 'changed' ? 'changed to' :
+                                  change.action === 'added' ? 'added' : 'removed';
+                
+                changeItem.innerHTML = `
+                    <div class="ip-history-date">${dateStr}</div>
+                    <div class="ip-history-details">
+                        <span class="ip-interface">${change.interface}</span>
+                        <span class="ip-action">${actionText}</span>
+                        <span class="ip-address">${change.address}</span>
+                    </div>
+                `;
+                
+                ipChangesContainer.appendChild(changeItem);
+            });
+        } else {
+            // If no IP changes
+            ipChangesContainer.innerHTML = '<div class="ip-history-item">No recent IP changes</div>';
         }
     }
 }

@@ -3,6 +3,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const notifier = require('node-notifier');
+const os = require('os'); // Add os module for network interfaces
 
 let mainWindow;
 let tray;
@@ -12,6 +13,27 @@ let isQuitting = false;
 const getIconPath = () => {
   const iconName = process.platform === 'win32' ? 'icon.ico' : 'icon.png';
   return path.join(__dirname, iconName);
+};
+
+// Get local IP addresses
+const getLocalIPs = () => {
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+  
+  // Loop through all network interfaces
+  for (const name in interfaces) {
+    for (const iface of interfaces[name]) {
+      // Only get IPv4 addresses and skip internal/loopback interfaces
+      if (iface.family === 'IPv4' && !iface.internal) {
+        addresses.push({
+          name: name,
+          address: iface.address
+        });
+      }
+    }
+  }
+  
+  return addresses;
 };
 
 const createWindow = () => {
@@ -467,7 +489,8 @@ const parsePingOutput = (output, error, code, host) => {
     avgTime: 0,
     minTime: 0,
     maxTime: 0,
-    error: error || null
+    error: error || null,
+    hostIPs: getLocalIPs() // Add local IP addresses to ping results
   };
 
   if (!result.success) {
